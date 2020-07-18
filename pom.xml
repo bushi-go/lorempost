@@ -71,6 +71,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- Faker, a quite usefull lib to generate fake data -->
+        <dependency>
+            <groupId>com.github.javafaker</groupId>
+            <artifactId>javafaker</artifactId>
+            <version>1.0.2</version>
+        </dependency>
         <!-- Embedded Mongo for production... Eeeew -->
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
