@@ -1,28 +1,33 @@
 package com.maiia.techtest.lorempost.posts.service;
 
+import com.maiia.techtest.lorempost.core.exception.model.ApiException;
+import com.maiia.techtest.lorempost.core.exception.model.ErrorCode;
 import com.maiia.techtest.lorempost.posts.dal.PostRepository;
 import com.maiia.techtest.lorempost.posts.model.dto.PostDto;
 import com.maiia.techtest.lorempost.posts.model.entities.Post;
 import com.maiia.techtest.lorempost.posts.model.mappers.PostMapper;
 import com.maiia.techtest.lorempost.user.dal.UserRepository;
 import com.maiia.techtest.lorempost.user.model.entities.User;
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
-@Log
+@Log4j2
 public class PostServiceImpl implements PostService {
 
   private final PostRepository postRepo;
   private final UserRepository userRepo;
   private final PostMapper postMapper;
+  private static List<String> sortableFields = List.of("title", "author");
 
   @Autowired
   PostServiceImpl(
@@ -34,8 +39,34 @@ public class PostServiceImpl implements PostService {
 
   @Override
   public Page<PostDto> getPosts(Pageable criteria) {
+    log.debug("Checking criteria");
+
+    if (criteria.getSort().isSorted()
+        && criteria
+            .getSort()
+            .get()
+            .anyMatch(order -> !sortableFields.contains(order.getProperty()))) {
+      throw new ApiException(ErrorCode.INVALID_SORT_FIELD);
+    }
+
+    Pageable actualCriteria =
+        PageRequest.of(
+            criteria.getPageNumber(),
+            criteria.getPageSize(),
+            criteria
+                .getSort()
+                .get()
+                .map(
+                    order -> {
+                      if ("author".equals(order.getProperty())) {
+                        return Sort.by(order.getDirection(), "userId");
+                      }
+                      return Sort.by(order);
+                    })
+                .reduce(Sort.unsorted(), Sort::and));
+
     log.info("Retrieving posts");
-    Page<Post> page = this.postRepo.findAll(criteria);
+    Page<Post> page = this.postRepo.findAll(actualCriteria);
     log.info("Retrieving posts'authors");
     List<User> authors =
         this.userRepo.findAllByOriginalIdIn(
@@ -44,7 +75,7 @@ public class PostServiceImpl implements PostService {
                 .distinct()
                 .collect(Collectors.toList()));
     log.info("Mapping to postDto");
-    Map<Post, User> postAndAuthorMap =
+    Map<Post, Optional<User>> postAndAuthorMap =
         page.getContent().stream()
             .collect(
                 Collectors.toMap(
@@ -52,13 +83,17 @@ public class PostServiceImpl implements PostService {
                     post ->
                         authors.stream()
                             .filter(author -> author.getOriginalId().equals(post.getUserId()))
-                            .findFirst()
-                            .orElseThrow(
-                                () ->
-                                    new InvalidParameterException(
-                                        "Found a post without author " + post.getId()))));
+                            .findFirst()));
     Page<PostDto> result =
-        page.map(post -> postMapper.toDtoWithAuthor(post, postAndAuthorMap.get(post)));
+        page.map(
+            post -> {
+              if (postAndAuthorMap.get(post).isPresent()) {
+                return postMapper.toDtoWithAuthor(post, postAndAuthorMap.get(post).get());
+              } else {
+                log.warn("Found post without author : " + post);
+                return postMapper.toDto(post);
+              }
+            });
     return result;
   }
 }

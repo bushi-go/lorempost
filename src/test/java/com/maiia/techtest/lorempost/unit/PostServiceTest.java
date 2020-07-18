@@ -1,11 +1,14 @@
 package com.maiia.techtest.lorempost.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.github.javafaker.Faker;
+import com.maiia.techtest.lorempost.core.exception.model.ApiException;
+import com.maiia.techtest.lorempost.core.exception.model.ErrorCode;
 import com.maiia.techtest.lorempost.core.initializer.DatabaseInitializer;
 import com.maiia.techtest.lorempost.core.model.dto.Address;
 import com.maiia.techtest.lorempost.core.model.dto.Company;
@@ -200,7 +203,7 @@ public class PostServiceTest {
               postList.stream()
                   .sorted(Comparator.comparing(Post::getTitle))
                   .skip(5 * 10)
-                  .limit(10)
+                  .limit(criteria.getPageSize())
                   .map(
                       post ->
                           postMapper.toDtoWithAuthor(
@@ -214,6 +217,65 @@ public class PostServiceTest {
               postList.size());
       Page<PostDto> actualResult = postService.getPosts(criteria);
       assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void givenSortByAuthorShouldReturnSortedByUserId() {
+      Pageable criteria =
+          PageRequest.of(
+              DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.ASC, "author"));
+      Pageable actualCriteria =
+          PageRequest.of(
+              DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.ASC, "userId"));
+
+      when(postRepo.findAll(eq(actualCriteria)))
+          .thenReturn(
+              new PageImpl<Post>(
+                  postList.stream()
+                      .sorted(Comparator.comparing(Post::getUserId))
+                      .limit(criteria.getPageSize())
+                      .collect(Collectors.toList()),
+                  criteria,
+                  postList.size()));
+      when(userRepo.findAllByOriginalIdIn(any()))
+          .thenReturn(
+              userList.stream()
+                  .filter(
+                      usr ->
+                          postList.stream()
+                              .sorted(Comparator.comparing(Post::getUserId))
+                              .limit(criteria.getPageSize())
+                              .map(Post::getUserId)
+                              .collect(Collectors.toList())
+                              .contains(usr.getOriginalId()))
+                  .collect(Collectors.toList()));
+      Page<PostDto> expectedResult =
+          new PageImpl<PostDto>(
+              postList.stream()
+                  .sorted(Comparator.comparing(Post::getUserId))
+                  .limit(criteria.getPageSize())
+                  .map(
+                      post ->
+                          postMapper.toDtoWithAuthor(
+                              post,
+                              userList.stream()
+                                  .filter(usr -> usr.getOriginalId().equals(post.getUserId()))
+                                  .findFirst()
+                                  .orElseThrow(() -> new InvalidParameterException())))
+                  .collect(Collectors.toList()),
+              criteria,
+              postList.size());
+      Page<PostDto> actualResult = postService.getPosts(criteria);
+      assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void givenUnsortablePropertyShouldThrow() {
+      Pageable criteria =
+          PageRequest.of(
+              DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.ASC, "toto"));
+      ApiException thrown = assertThrows(ApiException.class, () -> postService.getPosts(criteria));
+      assertEquals(ErrorCode.INVALID_SORT_FIELD, thrown.getCode());
     }
   }
 
