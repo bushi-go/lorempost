@@ -58,6 +58,14 @@ ENV MAVEN_CONFIG /root/.m2
 #     && ln -s "${GRADLE_HOME}/bin/gradle" /usr/bin/gradle
 #-------------------------------------------------------------------------------------------------------------
 
+#------------------- Add google java format as linter --------------------------------------------------------
+ARG GJS_VERSION=1.8
+RUN mkdir -p /usr/share/gjs \
+    && curl -fsSL -o /usr/share/gjs/gjs.jar https://github.com/google/google-java-format/releases/download/google-java-format-${GJS_VERSION}/google-java-format-${GJS_VERSION}-all-deps.jar \
+    && touch /usr/bin/gjs \
+    && echo '!#/bin/bash\n\n java -jar /usr/share/gjs/gjs.jar --replace $1' >> /usr/bin/gjs \
+    && chmod +x /usr/bin/gjs 
+
 # Clean up
 RUN export DEBIAN_FRONTEND=noninteractive \
     && apt-get autoremove -y \
