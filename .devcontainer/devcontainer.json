@@ -16,11 +16,12 @@
         "pivotal.vscode-boot-dev-pack",
         "gabrielbb.vscode-lombok",
         "emeraldwalk.runonsave",
-        "redhat.vscode-xml"
-	]
+        "redhat.vscode-xml",
+        "mhutchie.git-graph"
+	],
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+	 "forwardPorts": [8080, 27017]
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "java -version",
