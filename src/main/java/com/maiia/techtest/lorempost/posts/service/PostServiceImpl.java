@@ -41,6 +41,16 @@ public class PostServiceImpl implements PostService {
   public Page<PostDto> getPosts(Pageable criteria) {
     log.debug("Checking criteria");
 
+    Pageable actualCriteria = criteria;
+    if (!criteria.getSort().isSorted()) {
+      log.info("Applying default sorting : by title,ascending");
+      actualCriteria =
+          PageRequest.of(
+              criteria.getPageNumber(),
+              criteria.getPageSize(),
+              Sort.by(Sort.Direction.ASC, "title"));
+    }
+
     if (criteria.getSort().isSorted()
         && criteria
             .getSort()
@@ -48,23 +58,23 @@ public class PostServiceImpl implements PostService {
             .anyMatch(order -> !sortableFields.contains(order.getProperty()))) {
       throw new ApiException(ErrorCode.INVALID_SORT_FIELD);
     }
-
-    Pageable actualCriteria =
-        PageRequest.of(
-            criteria.getPageNumber(),
-            criteria.getPageSize(),
-            criteria
-                .getSort()
-                .get()
-                .map(
-                    order -> {
-                      if ("author".equals(order.getProperty())) {
-                        return Sort.by(order.getDirection(), "userId");
-                      }
-                      return Sort.by(order);
-                    })
-                .reduce(Sort.unsorted(), Sort::and));
-
+    if (criteria.getSort().get().anyMatch(order -> "author".equals(order.getProperty()))) {
+      actualCriteria =
+          PageRequest.of(
+              criteria.getPageNumber(),
+              criteria.getPageSize(),
+              criteria
+                  .getSort()
+                  .get()
+                  .map(
+                      order -> {
+                        if ("author".equals(order.getProperty())) {
+                          return Sort.by(order.getDirection(), "userId");
+                        }
+                        return Sort.by(order);
+                      })
+                  .reduce(Sort.unsorted(), Sort::and));
+    }
     log.info("Retrieving posts");
     Page<Post> page = this.postRepo.findAll(actualCriteria);
     log.info("Retrieving posts'authors");

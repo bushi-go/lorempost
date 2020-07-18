@@ -31,12 +31,7 @@ public class PostApi {
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "50") int size,
       @Nullable Sort sort) {
-
     log.info("Getting posts page");
-    if (Sort.unsorted().equals(sort)) {
-      log.info("Applying default sorting : by title,ascending");
-      sort = Sort.by(Sort.Direction.ASC, "title");
-    }
     return ResponseEntity.ok(this.postService.getPosts(PageRequest.of(page, size, sort)));
   }
 }
