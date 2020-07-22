@@ -4,12 +4,12 @@
     <parent>
         <groupId>com.maiia.techtest</groupId>
         <artifactId>lorempost</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-RELEASE</version>
         <relativePath>../</relativePath> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.maiia.techtest</groupId>
     <artifactId>lorempost-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
     <name>lorempost-api</name>
     <description>Api for getting, holding and exposing data of https://jsonplaceholder.typicode.com/posts 50 first posts</description>
     
@@ -27,12 +27,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

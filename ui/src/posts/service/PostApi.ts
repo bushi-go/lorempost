@@ -1,8 +1,9 @@
 import { SearchCriteria } from "../model/interface";
 
-const API_POSTS = "http://localhost:8080/api/posts"
+
 
 export async function getPosts(criteria: SearchCriteria | null = null){
+    const API_POSTS = process.env.REACT_APP_API_URL+"/posts";
     return (await fetch(API_POSTS + getQueryString(criteria), {method: "GET"})).json();
 }
 

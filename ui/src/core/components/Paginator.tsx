@@ -3,7 +3,7 @@ import { Pagination, PaginationItem } from '@material-ui/lab';
 import { PaginationState } from '../../posts/model/interface';
 import { useDispatch } from 'react-redux';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { Typography, Grid, withStyles, useTheme, Select, MenuItem, makeStyles, useMediaQuery } from '@material-ui/core';
+import {Grid, withStyles, useTheme, Select, MenuItem, makeStyles, useMediaQuery } from '@material-ui/core';
 
 export interface PaginatorProps {
     pagination: PaginationState;

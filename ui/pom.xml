@@ -4,18 +4,68 @@
     <parent>
         <groupId>com.maiia.techtest</groupId>
         <artifactId>lorempost</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0-RELEASE</version>
         <relativePath>../ </relativePath> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.maiia.techtest</groupId>
     <artifactId>lorempost-ui</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
     <name>lorempost-ui</name>
     <description>Ui for displaying data from https://jsonplaceholder.typicode.com/posts 50 first posts</description>
     <properties>
         <!-- To avoid having a jar built for this project-->
+        <jar.skip>true</jar.skip>
         <jar.skipIfEmpty>true</jar.skipIfEmpty>
         <maven.install.skip>true</maven.install.skip>
+        <maven.frontend.version>1.10.0</maven.frontend.version>
     </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${maven.frontend.version}</version>
+                <executions>
+                    <execution>
+                        <id> install node and yarn</id>
+                        <goals>
+                            <goal>install-node-and-yarn</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
 
+                    <configuration>
+                        <nodeVersion>v14.5.0</nodeVersion>
+                        <yarnVersion>v1.22.4</yarnVersion>
+                    </configuration>
+                        </execution>
+                    <execution>
+                        <id>yarn install</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <configuration>
+                             <!-- optional: The default argument is actually
+                             "install", so unless you need to run some other yarn command,
+                             you can remove this whole <configuration> section.
+                             -->
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn build</id>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <configuration>
+                             <!-- optional: The default argument is actually
+                             "install", so unless you need to run some other yarn command,
+                             you can remove this whole <configuration> section.
+                             -->
+                            <arguments>build</arguments>
+                        </configuration>
+                    </execution>
+                    </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

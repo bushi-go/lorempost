@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 public class ExternalSource {
   @NotBlank private URI postUrl;
   @NotBlank private URI userUrl;
+  @NotBlank private String staticLocations;
+  @NotBlank private String spaFile;
 
   @Bean
   public RestTemplate restTemplate() {

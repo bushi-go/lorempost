@@ -43,7 +43,7 @@ public class PostServiceImpl implements PostService {
 
     Pageable actualCriteria = criteria;
     if (!criteria.getSort().isSorted()) {
-      log.info("Applying default sorting : by title,ascending");
+      log.debug("Applying default sorting : by title,ascending");
       actualCriteria =
           PageRequest.of(
               criteria.getPageNumber(),

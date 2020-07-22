@@ -2,7 +2,8 @@ HELP.md
 target/
 !**/src/main/**/target/
 !**/src/test/**/target/
-
+api/src/main/resources/public/*
+ui/.env
 ### STS ###
 .apt_generated
 .classpath
@@ -35,3 +36,5 @@ mvnw.cmd
 **/.mvn/wrapper/maven-wrapper.jar
 **/.mvn/wrapper/maven-wrapper.properties
 **/.mvn/wrapper/MavenWrapperDownloader.java
+?/.m2/**
+api/?/**

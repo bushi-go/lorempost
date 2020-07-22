@@ -9,7 +9,7 @@
     </parent>
     <groupId>com.maiia.techtest</groupId>
     <artifactId>lorempost</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-RELEASE</version>
     <name>lorempost</name>
     <description>Displayer for https://jsonplaceholder.typicode.com/posts 50 first posts</description>
     <packaging>pom</packaging>
