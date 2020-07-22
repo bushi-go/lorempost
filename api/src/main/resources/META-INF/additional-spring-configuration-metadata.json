@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "com.maiia.techtest.lorempost.post_url",
+    "type": "java.net.URI",
+    "description": "The url we get the posts from when initializing our embedded database"
+  },
+  {
+    "name": "com.maiia.techtest.lorempost.user_url",
+    "type": "java.net.URI",
+    "description": "The url we get the users from when initializing our embedded database"
+  },
+  {
+    "name": "com.maiia.techtest.lorempost.spa-file",
+    "type": "java.lang.String",
+    "description": "location of SPA index.html"
+  }
+]}
